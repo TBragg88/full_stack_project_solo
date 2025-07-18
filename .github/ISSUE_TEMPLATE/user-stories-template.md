@@ -7,8 +7,7 @@ assignees: ''
 
 ---
 
-As a: ROLE
-I wish
+**User Story**
 
-AC: 
-AC:
+
+**Acceptance Criteria**
