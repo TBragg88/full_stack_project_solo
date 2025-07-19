@@ -31,7 +31,7 @@ class Recipe(models.Model):
     )
     difficulty_level = models.CharField(max_length=20,
                                         choices=DIFFICULTY_CHOICES)
-    main_image_url = models.TextField(blank=True, null=True)
+    main_image_url = CloudinaryField('image', default='placeholder')
     is_public = models.BooleanField(default=True,
                                     help_text='true/false for privacy')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -155,7 +155,7 @@ class StepImage(models.Model):
     Images for cooking steps to help users visualize the process.
     """
     step = models.ForeignKey(RecipeStep, on_delete=models.CASCADE)
-    image_url = models.TextField()
+    image_url = CloudinaryField('image')
     alt_text = models.CharField(
         max_length=255,
         help_text='description for accessibility and display'
