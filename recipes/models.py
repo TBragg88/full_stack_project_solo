@@ -59,30 +59,64 @@ class Recipe(models.Model):
 class Ingredient(models.Model):
     """
     Master ingredient database - one entry per unique ingredient.
+    Includes nutritional data per 100g for smart recipe calculations.
     """
     name = models.CharField(max_length=255, unique=True)
-    category = models.CharField(max_length=100,
-                                help_text='produce/meat/dairy/etc')
-    common_unit = models.CharField(max_length=20,
-                                   help_text='grams/ml/pieces/etc')
+    category = models.CharField(
+        max_length=100,
+        help_text='produce/meat/dairy/etc'
+    )
+    common_unit = models.CharField(
+        max_length=20,
+        help_text='grams/ml/pieces/etc'
+    )
     dietary_flags = models.TextField(
         blank=True,
         help_text='JSON array: '
-        '["dairy", "gluten", "nuts", "soy", "eggs"] '
-        '- what this ingredient contains'
+                  '["dairy", "gluten", "nuts", "soy", "eggs"] '
+                  '- what this ingredient contains'
     )
+
+    # Macronutrients per 100g
     calories_per_100g = models.DecimalField(max_digits=8,
                                             decimal_places=2,
-                                            null=True, blank=True)
+                                            null=True,
+                                            blank=True)
     protein_per_100g = models.DecimalField(max_digits=8,
                                            decimal_places=2,
-                                           null=True, blank=True)
+                                           null=True,
+                                           blank=True)
     carbs_per_100g = models.DecimalField(max_digits=8,
                                          decimal_places=2,
-                                         null=True, blank=True)
+                                         null=True,
+                                         blank=True)
     fat_per_100g = models.DecimalField(max_digits=8,
                                        decimal_places=2,
-                                       null=True, blank=True)
+                                       null=True,
+                                       blank=True)
+    fibre_per_100g = models.DecimalField(max_digits=8,
+                                         decimal_places=2,
+                                         null=True,
+                                         blank=True)
+    sugars_per_100g = models.DecimalField(max_digits=8,
+                                          decimal_places=2,
+                                          null=True,
+                                          blank=True)
+    sodium_mg_per_100g = models.DecimalField(max_digits=8,
+                                             decimal_places=2,
+                                             null=True,
+                                             blank=True)
+    saturated_fat_per_100g = models.DecimalField(max_digits=8,
+                                                 decimal_places=2,
+                                                 null=True,
+                                                 blank=True)
+
+    # Optional meta field
+    nutritional_basis = models.CharField(
+        max_length=20,
+        default="per 100g",
+        help_text='Basis of nutritional values (e.g. per 100g, per slice)'
+    )
 
     def __str__(self):
         return self.name
