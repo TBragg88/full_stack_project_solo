@@ -1,5 +1,7 @@
 # recipes/admin.py
 from django.contrib import admin
+from django.db import models
+from django.utils.html import format_html
 from .models import Recipe, Ingredient, RecipeIngredient, RecipeStep, StepImage
 
 
@@ -70,8 +72,24 @@ class RecipeAdmin(admin.ModelAdmin):
     # Fields that can't be edited
     readonly_fields = [
                        'created_at',
-                       'updated_at'
+                       'updated_at',
+                       'main_image_preview'
                        ]
+
+    # Force text input for image URL field
+    formfield_overrides = {
+        models.TextField: {'widget': admin.widgets.AdminTextInputWidget},
+    }
+
+    def main_image_preview(self, obj):
+        """Show preview of main recipe image"""
+        if obj.main_image_url:
+            return format_html(
+                '<img src="{}" style="max-height: 150px; max-width: 200px;" />',
+                obj.main_image_url
+            )
+        return "No image uploaded"
+    main_image_preview.short_description = "Main Image Preview"
 
     # Organize fields into sections
     fieldsets = [
@@ -80,7 +98,8 @@ class RecipeAdmin(admin.ModelAdmin):
                        'user',
                        'title',
                        'description',
-                       'main_image_url'
+                       'main_image_url',
+                       'main_image_preview'
                        ]
         }),
         ('Recipe Details', {
@@ -146,7 +165,23 @@ class StepImageInline(admin.TabularInline):
     """
     model = StepImage
     extra = 1
-    fields = ['image_url', 'alt_text', 'display_order']
+    fields = ['image_url', 'image_preview', 'alt_text', 'display_order']
+    readonly_fields = ['image_preview']
+ 
+    # Force text input for image URL field
+    formfield_overrides = {
+        models.TextField: {'widget': admin.widgets.AdminTextInputWidget},
+    }
+
+    def image_preview(self, obj):
+        """Show a small preview of the image in admin"""
+        if obj.image_url:
+            return format_html(
+                '<img src="{}" style="max-height: 50px; max-width: 100px;" />',
+                obj.image_url
+            )
+        return "No image"
+    image_preview.short_description = "Preview"
 
 
 @admin.register(RecipeStep)
@@ -182,8 +217,44 @@ class RecipeStepAdmin(admin.ModelAdmin):
         )
     instruction_preview.short_description = "Instruction Preview"
 
+
+@admin.register(StepImage)
+class StepImageAdmin(admin.ModelAdmin):
+    """
+    Admin interface for StepImage model with image previews.
+    """
+    list_display = [
+        'step',
+        'image_preview',
+        'alt_text',
+        'display_order',
+        'uploaded_at'
+    ]
+    list_filter = [
+        'step__recipe',
+        'uploaded_at'
+    ]
+    search_fields = [
+        'step__recipe__title',
+        'alt_text'
+    ]
+    readonly_fields = ['image_preview', 'uploaded_at']
+
+    # Force text input for image URL field
+    formfield_overrides = {
+        models.TextField: {'widget': admin.widgets.AdminTextInputWidget},
+    }
+
+    def image_preview(self, obj):
+        """Show image preview in admin"""
+        if obj.image_url:
+            return format_html(
+                '<img src="{}" style="max-height: 100px; max-width: 150px;" />',
+                obj.image_url
+            )
+        return "No image"
+    image_preview.short_description = "Image Preview"
+
+
 # Register the remaining models with basic admin
-
-
 admin.site.register(RecipeIngredient)
-admin.site.register(StepImage)
